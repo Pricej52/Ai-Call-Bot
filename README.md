@@ -1,29 +1,30 @@
-# AI Call Bot Monorepo Foundation
+# AI Call Bot - Voice Backend Foundation
 
-Production-oriented foundation for a multi-tenant white-label AI voice agent platform.
+## Run locally
 
-## Monorepo structure
+1. Create a virtual environment and install deps:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+2. Start the API:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+3. Verify health:
+   ```bash
+   curl http://127.0.0.1:8000/health
+   ```
 
-- `apps/api` — FastAPI orchestration backend
-- `apps/web` — Next.js admin dashboard (scaffold placeholder for next phase)
-- `docs` — architecture and planning artifacts
-- `docker-compose.yml` — local development stack (Postgres, Redis, API)
+## Endpoints
 
-## Quick start
+- `POST /webhooks/twilio/voice/inbound`
+- `POST /calls/outbound-jobs`
+- `GET /health`
+
+## Run tests
 
 ```bash
-docker compose up --build
+pytest -q
 ```
-
-API base URL: `http://localhost:8000/api/v1`
-Health endpoint: `http://localhost:8000/health`
-
-## Delivered in this commit
-
-- Phase 1 planning artifacts in `docs/phase-1-foundation.md`.
-- Phase 2 backend foundation:
-  - auth
-  - tenant/client/agent CRUD base
-  - wizard draft persistence
-  - Twilio inbound webhook resolver base
-  - call session persistence model
