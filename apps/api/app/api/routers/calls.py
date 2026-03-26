@@ -20,6 +20,7 @@ from app.services.crud import (
     list_transcript_entries,
     update_call_status,
 )
+from app.services.twilio_integrations import get_tenant_twilio_connection
 
 router = APIRouter(prefix="/calls", tags=["calls"])
 
@@ -105,6 +106,13 @@ async def twilio_inbound_webhook(
     if not phone:
         return PlainTextResponse(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say>No active number configuration found.</Say><Hangup/></Response>",
+            media_type="application/xml",
+        )
+
+    tenant_integration = await get_tenant_twilio_connection(db, str(phone.tenant_id))
+    if not tenant_integration:
+        return PlainTextResponse(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say>Twilio is not configured for this tenant.</Say><Hangup/></Response>",
             media_type="application/xml",
         )
 

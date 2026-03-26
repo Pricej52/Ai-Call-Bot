@@ -8,6 +8,8 @@ import {
   CreateCampaignPayload,
   DashboardStats,
   TenantSettingsPayload,
+  TwilioIntegration,
+  TwilioTestResponse,
 } from "@/types/api";
 
 export async function listAgents(tenantId: string) {
@@ -56,4 +58,48 @@ export async function getDashboardStats(tenantId: string) {
 
 export async function saveTenantSettings(payload: TenantSettingsPayload) {
   return payload;
+}
+
+export async function getTwilioIntegration(tenantId: string) {
+  const { data } = await apiClient.get<TwilioIntegration | null>(`/integrations/twilio?tenant_id=${tenantId}`);
+  return data;
+}
+
+export async function connectTwilioIntegration(payload: {
+  tenant_id: string;
+  account_sid: string;
+  auth_token: string;
+  default_phone_number?: string;
+}) {
+  const { data } = await apiClient.post<TwilioIntegration>("/integrations/twilio", payload);
+  return data;
+}
+
+export async function updateTwilioIntegration(payload: {
+  tenant_id: string;
+  account_sid?: string;
+  auth_token?: string;
+  default_phone_number?: string;
+}) {
+  const { data } = await apiClient.patch<TwilioIntegration>("/integrations/twilio", payload);
+  return data;
+}
+
+export async function disconnectTwilioIntegration(tenantId: string) {
+  await apiClient.delete(`/integrations/twilio?tenant_id=${tenantId}`);
+}
+
+export async function testTwilioIntegration(tenantId: string) {
+  const { data } = await apiClient.post<TwilioTestResponse>("/integrations/twilio/test", {
+    tenant_id: tenantId,
+    include_numbers: true,
+  });
+  return data;
+}
+
+export async function listTenantTwilioNumbers(tenantId: string, clientAccountId: string) {
+  const { data } = await apiClient.get<{ tenant_id: string; numbers: string[] }>(
+    `/integrations/twilio/phone-numbers?tenant_id=${tenantId}&client_account_id=${clientAccountId}`,
+  );
+  return data.numbers;
 }
