@@ -5,6 +5,8 @@ import Link from "next/link";
 import { listCalls } from "@/lib/api/admin-api";
 import { CallLog } from "@/types/api";
 
+const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID ?? "00000000-0000-0000-0000-000000000000";
+
 export function CallsTable() {
   const [calls, setCalls] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ export function CallsTable() {
     const load = async () => {
       try {
         setLoading(true);
-        const data = await listCalls();
+        const data = await listCalls(TENANT_ID);
         setCalls(data);
       } catch (loadError) {
         console.error(loadError);

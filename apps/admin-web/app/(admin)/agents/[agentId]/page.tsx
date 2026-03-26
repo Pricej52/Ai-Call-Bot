@@ -5,7 +5,7 @@ export default async function EditAgentPage({ params }: { params: Promise<{ agen
   const { agentId } = await params;
   return (
     <div>
-      <PageHeader title="Edit Agent" description="Update core details for your selected agent." />
+      <PageHeader title="Agent Detail" description="Inspect full configuration and set publish/test-ready status." />
       <EditAgentForm agentId={agentId} />
     </div>
   );

@@ -21,6 +21,7 @@ export function AgentsTable() {
             <th className="px-4 py-3 text-left">Type</th>
             <th className="px-4 py-3 text-left">Language</th>
             <th className="px-4 py-3 text-left">Voice</th>
+            <th className="px-4 py-3 text-left">Status</th>
             <th className="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
@@ -31,10 +32,19 @@ export function AgentsTable() {
               <td className="px-4 py-3 capitalize">{agent.type}</td>
               <td className="px-4 py-3">{agent.language}</td>
               <td className="px-4 py-3">{agent.voice}</td>
+              <td className="px-4 py-3">
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${
+                    agent.is_published ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  {agent.is_published ? "Published" : "Draft"}
+                </span>
+              </td>
               <td className="px-4 py-3 text-right">
                 <div className="flex justify-end gap-2">
                   <Link href={`/agents/${agent.id}`} className="text-blue-600 hover:underline">
-                    Edit
+                    View
                   </Link>
                   <Button
                     size="sm"
@@ -59,7 +69,7 @@ export function AgentsTable() {
           ))}
           {agents.length === 0 ? (
             <tr>
-              <td className="px-4 py-6 text-center text-slate-500" colSpan={5}>
+              <td className="px-4 py-6 text-center text-slate-500" colSpan={6}>
                 No agents found.
               </td>
             </tr>

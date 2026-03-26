@@ -16,6 +16,7 @@ const schema = z.object({
   type: z.enum(["inbound", "outbound"]),
   name: z.string().min(2, "Name is required"),
   phone_number_id: z.string().optional(),
+  twilioPhoneNumber: z.string().optional(),
   voice: z.string().min(1),
   language: z.string().min(2),
   prompt: z.string().min(10, "Prompt should be at least 10 characters"),
@@ -25,6 +26,7 @@ const schema = z.object({
   voicemailEnabled: z.boolean().default(false),
   voicemailMessage: z.string().optional(),
   webhookUrl: z.string().url("Webhook URL must be valid"),
+  status: z.enum(["draft", "published"]).default("draft"),
 });
 
 type WizardValues = z.infer<typeof schema>;
@@ -44,6 +46,7 @@ export function CreateAgentWizard() {
       type: "inbound",
       name: "",
       phone_number_id: "",
+      twilioPhoneNumber: "",
       voice: "alloy",
       language: "en",
       prompt: "",
@@ -53,6 +56,7 @@ export function CreateAgentWizard() {
       voicemailEnabled: false,
       voicemailMessage: "",
       webhookUrl: "",
+      status: "draft",
     },
     mode: "onBlur",
   });
@@ -75,15 +79,15 @@ export function CreateAgentWizard() {
         type: data.type,
         name: data.name,
         phone_number_id: data.phone_number_id,
+        twilio_phone_number: data.twilioPhoneNumber,
         language: data.language,
         voice: data.voice,
-        call_flow: {
-          prompt: data.prompt,
-          talk_tracks: data.talkTracks,
-          cta: { text: data.ctaText, action: data.ctaAction },
-          voicemail: { enabled: data.voicemailEnabled, message: data.voicemailMessage },
-          webhook_url: data.webhookUrl,
-        },
+        base_prompt: data.prompt,
+        talk_tracks: data.talkTracks,
+        cta_instructions: `${data.ctaText} (${data.ctaAction})`,
+        voicemail_behavior: data.voicemailEnabled ? data.voicemailMessage : "disabled",
+        webhook_url: data.webhookUrl,
+        status: data.status,
       });
       router.push("/agents");
     } catch (submitError) {
@@ -121,6 +125,10 @@ export function CreateAgentWizard() {
           <div>
             <Label>Phone Number ID</Label>
             <Input {...form.register("phone_number_id")} />
+          </div>
+          <div>
+            <Label>Twilio Phone Number (E.164)</Label>
+            <Input {...form.register("twilioPhoneNumber")} placeholder="+15551234567" />
           </div>
           <div>
             <Label>Voice</Label>
@@ -164,6 +172,16 @@ export function CreateAgentWizard() {
             <Label>Webhook URL</Label>
             <Input {...form.register("webhookUrl")} placeholder="https://..." />
             <p className="mt-1 text-xs text-red-600">{form.formState.errors.webhookUrl?.message}</p>
+          </div>
+          <div>
+            <Label>Status</Label>
+            <Select
+              options={[
+                { label: "Draft", value: "draft" },
+                { label: "Published (test-ready)", value: "published" },
+              ]}
+              {...form.register("status")}
+            />
           </div>
         </div>
       ) : null}

@@ -32,3 +32,15 @@ class CallSessionRead(BaseReadSchema):
     summary: str | None
     disposition: str | None
     next_action: str | None
+
+
+class TranscriptEntryRead(BaseReadSchema):
+    call_session_id: str
+    speaker: str
+    content: str
+    sequence: int
+    extra_metadata: dict
+
+
+class CallWithTranscriptRead(CallSessionRead):
+    transcript_entries: list[TranscriptEntryRead]
