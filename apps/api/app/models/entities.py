@@ -138,7 +138,7 @@ class KnowledgeSource(Base, UUIDMixin, TimestampMixin):
     source_type: Mapped[str] = mapped_column(String(30), default="url", nullable=False)
     source_uri: Mapped[str] = mapped_column(Text, nullable=False)
     retrieval_provider: Mapped[str] = mapped_column(String(80), default="native", nullable=False)
-    metadata: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    extra_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default=dict, nullable=False)
 
 
 class WebhookIntegration(Base, UUIDMixin, TimestampMixin):
@@ -174,7 +174,7 @@ class CampaignLead(Base, UUIDMixin, TimestampMixin):
     last_name: Mapped[str | None] = mapped_column(String(120))
     phone_number: Mapped[str] = mapped_column(String(30), nullable=False)
     email: Mapped[str | None] = mapped_column(String(320))
-    metadata: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    extra_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default=dict, nullable=False)
 
 
 class CallSession(Base, UUIDMixin, TimestampMixin):
@@ -204,7 +204,7 @@ class TranscriptEntry(Base, UUIDMixin, TimestampMixin):
     speaker: Mapped[str] = mapped_column(String(40), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     sequence: Mapped[int] = mapped_column(Integer, nullable=False)
-    metadata: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    extra_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default=dict, nullable=False)
 
 
 class WebhookDelivery(Base, UUIDMixin, TimestampMixin):
