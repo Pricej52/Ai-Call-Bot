@@ -27,6 +27,12 @@ class CampaignStatus(str, Enum):
     completed = "completed"
 
 
+class IntegrationStatus(str, Enum):
+    not_configured = "not_configured"
+    connected = "connected"
+    failed = "failed"
+
+
 class Tenant(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "tenants"
 
@@ -35,6 +41,7 @@ class Tenant(Base, UUIDMixin, TimestampMixin):
 
     users: Mapped[list["TenantUser"]] = relationship(back_populates="tenant")
     clients: Mapped[list["ClientAccount"]] = relationship(back_populates="tenant")
+    integrations: Mapped[list["TenantIntegration"]] = relationship(back_populates="tenant")
 
 
 class TenantUser(Base, UUIDMixin, TimestampMixin):
@@ -70,6 +77,26 @@ class PhoneNumber(Base, UUIDMixin, TimestampMixin):
     provider: Mapped[str] = mapped_column(String(50), default="twilio", nullable=False)
     provider_sid: Mapped[str | None] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+
+class TenantIntegration(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "tenant_integrations"
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, unique=True)
+    provider: Mapped[str] = mapped_column(String(50), default="twilio", nullable=False)
+    account_sid: Mapped[str] = mapped_column(String(64), nullable=False)
+    encrypted_auth_token: Mapped[str] = mapped_column(Text, nullable=False)
+    masked_auth_token: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[IntegrationStatus] = mapped_column(
+        SQLEnum(IntegrationStatus),
+        default=IntegrationStatus.not_configured,
+        nullable=False,
+    )
+    default_phone_number: Mapped[str | None] = mapped_column(String(30))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    last_tested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="integrations")
 
 
 class AgentTemplate(Base, UUIDMixin, TimestampMixin):

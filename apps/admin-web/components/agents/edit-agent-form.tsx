@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getAgent, updateAgent } from "@/lib/api/admin-api";
+import { getAgent, getTwilioIntegration, listTenantTwilioNumbers, updateAgent } from "@/lib/api/admin-api";
 import { Agent } from "@/types/api";
 
 export function EditAgentForm({ agentId }: { agentId: string }) {
@@ -14,12 +15,21 @@ export function EditAgentForm({ agentId }: { agentId: string }) {
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [twilioConnected, setTwilioConnected] = useState(false);
+  const [availableNumbers, setAvailableNumbers] = useState<string[]>([]);
 
   useEffect(() => {
     const load = async () => {
       try {
         const data = await getAgent(agentId);
         setAgent(data);
+        const integration = await getTwilioIntegration(data.tenant_id);
+        const connected = integration?.status === "connected";
+        setTwilioConnected(connected);
+        if (connected) {
+          const numbers = await listTenantTwilioNumbers(data.tenant_id, data.client_account_id);
+          setAvailableNumbers(numbers);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -67,10 +77,18 @@ export function EditAgentForm({ agentId }: { agentId: string }) {
         </div>
         <div>
           <Label>Twilio Number</Label>
-          <Input
-            value={agent.twilio_phone_number ?? ""}
-            onChange={(event) => setAgent({ ...agent, twilio_phone_number: event.target.value })}
-          />
+          {twilioConnected ? (
+            <Select
+              value={agent.twilio_phone_number ?? ""}
+              options={[
+                { label: "Select a number", value: "" },
+                ...availableNumbers.map((number) => ({ label: number, value: number })),
+              ]}
+              onChange={(event) => setAgent({ ...agent, twilio_phone_number: event.target.value })}
+            />
+          ) : (
+            <p className="text-sm text-amber-700">No active Twilio connection for this tenant.</p>
+          )}
         </div>
         <div>
           <Label>Voice</Label>

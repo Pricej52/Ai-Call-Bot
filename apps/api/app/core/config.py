@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_phone_number: str = ""
+    twilio_credentials_encryption_key: str = ""
     public_webhook_base_url: str = ""
     twilio_base_url: str = "https://api.twilio.com"
 

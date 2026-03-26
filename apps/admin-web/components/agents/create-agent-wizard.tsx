@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { createAgent } from "@/lib/api/admin-api";
+import { createAgent, getTwilioIntegration, listTenantTwilioNumbers } from "@/lib/api/admin-api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +39,24 @@ export function CreateAgentWizard() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [twilioConnected, setTwilioConnected] = useState(false);
+  const [availableNumbers, setAvailableNumbers] = useState<string[]>([]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const integration = await getTwilioIntegration(tenantId);
+        const connected = integration?.status === "connected";
+        setTwilioConnected(connected);
+        if (connected) {
+          const numbers = await listTenantTwilioNumbers(tenantId, clientId);
+          setAvailableNumbers(numbers);
+        }
+      } catch (loadError) {
+        console.error(loadError);
+      }
+    })();
+  }, []);
 
   const form = useForm<WizardValues>({
     resolver: zodResolver(schema),
@@ -128,7 +146,19 @@ export function CreateAgentWizard() {
           </div>
           <div>
             <Label>Twilio Phone Number (E.164)</Label>
-            <Input {...form.register("twilioPhoneNumber")} placeholder="+15551234567" />
+            {twilioConnected ? (
+              <Select
+                options={[
+                  { label: "Select a number", value: "" },
+                  ...availableNumbers.map((number) => ({ label: number, value: number })),
+                ]}
+                {...form.register("twilioPhoneNumber")}
+              />
+            ) : (
+              <p className="text-sm text-amber-700">
+                Twilio is not connected. Connect first in Settings &gt; Integrations &gt; Twilio.
+              </p>
+            )}
           </div>
           <div>
             <Label>Voice</Label>

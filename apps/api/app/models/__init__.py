@@ -10,11 +10,13 @@ from app.models.entities import (
     CampaignLead,
     CampaignStatus,
     ClientAccount,
+    IntegrationStatus,
     KnowledgeSource,
     PhoneNumber,
     PromptVersion,
     TalkTrack,
     Tenant,
+    TenantIntegration,
     TenantUser,
     TranscriptEntry,
     WebhookDelivery,
@@ -23,6 +25,7 @@ from app.models.entities import (
 
 __all__ = [
     "Tenant",
+    "TenantIntegration",
     "TenantUser",
     "ClientAccount",
     "PhoneNumber",
@@ -42,4 +45,5 @@ __all__ = [
     "AgentType",
     "CallDirection",
     "CampaignStatus",
+    "IntegrationStatus",
 ]

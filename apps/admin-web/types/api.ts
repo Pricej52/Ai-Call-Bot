@@ -91,3 +91,24 @@ export interface TenantSettingsPayload {
   timezone: string;
   supportEmail: string;
 }
+
+export interface TwilioIntegration {
+  tenant_id: string;
+  provider: "twilio";
+  account_sid: string;
+  masked_auth_token: string;
+  status: "connected" | "failed" | "not_configured";
+  default_phone_number?: string | null;
+  metadata_json: Record<string, unknown>;
+  last_tested_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TwilioTestResponse {
+  status: "connected" | "failed" | "not_configured";
+  message: string;
+  account_name?: string | null;
+  numbers: string[];
+  last_tested_at?: string | null;
+}
