@@ -28,3 +28,18 @@
 ```bash
 pytest -q
 ```
+
+## Operational verification (local + Docker)
+
+Run the automated readiness check:
+
+```bash
+bash scripts/verify_operational.sh
+```
+
+What it validates:
+- Required toolchain (Python, Node.js, Docker CLI when present)
+- Docker Compose configuration validity
+- Python dependency install + root tests
+- `apps/api` dependency install + import smoke test
+- `apps/admin-web` dependency install + lint + build
