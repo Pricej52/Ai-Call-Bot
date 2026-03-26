@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listCalls } from "@/lib/api/admin-api";
+import { getErrorMessage } from "@/lib/api/errors";
 import { CallLog } from "@/types/api";
 
-const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID ?? "00000000-0000-0000-0000-000000000000";
+const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID;
 
 export function CallsTable() {
   const [calls, setCalls] = useState<CallLog[]>([]);
@@ -14,13 +15,19 @@ export function CallsTable() {
 
   useEffect(() => {
     const load = async () => {
+      if (!TENANT_ID) {
+        setError("Missing NEXT_PUBLIC_TENANT_ID. Configure it to load calls.");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const data = await listCalls(TENANT_ID);
         setCalls(data);
       } catch (loadError) {
         console.error(loadError);
-        setError("Failed to load call logs.");
+        setError(getErrorMessage(loadError, "Failed to load call logs."));
       } finally {
         setLoading(false);
       }
